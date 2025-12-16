@@ -1,25 +1,53 @@
-/* Set the font for the entire dashboard */
+/* ===== New Navigation Buttons ===== */
+.jump-buttons-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.jump-button {
+  background-color: #253471;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  flex-grow: 1;
+  margin: 0 5px;
+}
+
+.jump-button:hover {
+  filter: brightness(1.2);
+}
+
+/* ===== Base Styles ===== */
 body {
   font-family: 'Roboto', sans-serif;
   background-color: #fff;
   color: #333;
 }
 
-h {
+h2 {
+  font-size: 24px !important;
+  font-weight: 600 !important;
   color: #253471 !important;
-  font-weight: 500 !important;
-  padding-bottom: 20px;
-  padding-top: 20px;
-  font-size: 28px !important;/* Semibold */
+  padding-bottom: 60px !important;
+  padding-top: 40px !important;
 }
-
-
 
 /* Style card headers */
 .card-header {
-  background-color: #F4F4F4 !important;
-  color: #253471 !important;
+  background-color: #253471 !important;
+  color: #FFFFFF !important;
   font-weight: bold;
+  font-size: 22px !important;
+  padding: 25px !important;
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 30px !important; 
 }
 
 /* Customize dropdowns (pickerInput) */
@@ -44,14 +72,235 @@ th {
   color: white;
 }
 
-h2 {
-  font-size: 24px !important;
-  font-weight: 600 !important; /* Semi-bold */
-  color: #253471 !important;
-}
-
 .legend text {
   font-size: 16px !important;
 }
 
+/* --- Fullscreen Button Styling --- */
+bslib-tooltip button.bslib-full-screen-enter {
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: #253471 !important;
+  border-radius: 5% !important;
+  width: 70px !important;
+  height: 30px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  position: absolute !important;
+  bottom: 15px !important;
+  right: 30px !important;
+  left: auto !important;
+}
 
+bslib-tooltip button.bslib-full-screen-enter svg {
+  fill: white !important;
+  height: 1.2em !important;
+  width: 1.2em !important;
+}
+
+bslib-tooltip button.bslib-full-screen-enter:hover {
+  transform: scale(1.2);
+  cursor: pointer;
+  filter: brightness(1.1);
+}
+
+/* Add bottom margin to all plot outputs */
+.shiny-plot-output {
+  margin-bottom: 45px !important;
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 575px) {
+  .bslib-layout-column, .layout-columns {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .shiny-plot-output {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+  }
+
+  .card {
+    margin-bottom: 20px !important;
+    padding: 10px !important;
+  }
+
+  .ggplot .strip text {
+    font-size: 12px !important;
+  }
+
+  table {
+    font-size: 14px !important;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* Device visibility helpers */
+@media (max-width: 500px) {
+  .mobile-hide {
+    display: none;
+  }
+}
+
+@media (max-width: 575px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+}
+
+@media (min-width: 576px) {
+  .desktop-only { display: block !important; }
+  .mobile-only { display: none !important; }
+}
+
+@media (max-width: 575px) {
+  /* Ensure picker containers don't create extra space */
+  .card .picker-input,
+  .card .bootstrap-select {
+    margin-bottom: 10px !important;
+  }
+
+  /* Fix dropdown container height expansion issue */
+  .card .bootstrap-select,
+  .card .dropdown-toggle {
+    height: auto !important;
+  }
+
+  /* Prevent ghost space from absolutely positioned dropdowns */
+  .dropdown-menu {
+    position: absolute !important;
+  }
+}
+
+/* Hide tablet by default */
+.tablet-only {
+  display: none !important;
+}
+
+/* Mobile: ≤575px */
+@media (max-width: 575px) {
+  .desktop-only, .tablet-only { display: none !important; }
+  .mobile-only { display: block !important; }
+}
+
+/* Tablet: 576px–1199px */
+@media (min-width: 576px) and (max-width: 1199px) {
+  .desktop-only, .mobile-only { display: none !important; }
+  .tablet-only { display: block !important; }
+}
+
+/* Desktop: ≥1200px */
+@media (min-width: 600px) {
+  .tablet-only, .mobile-only { display: none !important; }
+  .desktop-only { display: block !important; }
+}
+
+/* ===== Tabset Styling ===== */
+
+/* Style for INACTIVE tabs */
+.nav-tabs > li > a {
+  color: #888888 !important; 
+  background-color: #FFFFFF !important; 
+}
+
+/* Style for HOVERING over INACTIVE tabs */
+.nav-tabs > li > a:hover {
+  color: #253471 !important; 
+  background-color: #F4F4F4 !important; 
+}
+
+/* Style for the ACTIVE tab */
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  color: #253471 !important; 
+  font-weight: bold !important; 
+  background-color: #FFFFFF !important; 
+  border-color: #DDDDDD #DDDDDD #FFFFFF !important; 
+  border-bottom: 3px solid #253471 !important; 
+}
+
+/* ===== Sticky Sidebar Layout ===== */
+
+#sidebar {
+  position: sticky !important;
+  top: 20px !important;       
+  height: 95vh !important;    
+  overflow-y: auto !important;
+}
+
+/* ===== Main Content Alignment ===== */
+
+#main {
+  margin-top: 20px !important;
+}
+
+/* ===== Sidebar Button & Dropdown Styling ===== */
+
+#update_data,
+#downloadDataCap,
+#expand_plots {
+  width: 300px !important; 
+  display: block !important;      
+  margin-left: auto !important;   
+  margin-right: auto !important;  
+}
+
+#sidebar .form-group {
+  width: 300px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+#downloadDataCap {
+  margin-top: 10px !important; 
+}
+
+.shiny-busy-full-page {
+  background: rgba(255, 255, 255, 0.5) !important; 
+}
+
+/* === HIDE the default 'Enter Fullscreen' button inside the card === */
+#main .bslib-full-screen-enter {
+  display: none !important;
+}
+
+/* === ENSURE the 'Exit Fullscreen' button remains visible === */
+.bslib-full-screen-exit {
+  display: flex !important; 
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* ============================================================== */
+/* === FIX: SOLID WHITE BACKGROUND BEHIND EXPANDED PLOTS === */
+/* ============================================================== */
+
+/* 1. Make the general backdrop white and opaque */
+#bslib-full-screen-overlay,
+.bslib-full-screen-overlay {
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important; 
+  /* Removed z-index here to avoid burying the plot */
+}
+
+/* 2. Crucial: Make the EXPANDED CARD itself solid white */
+/* This fills the gaps behind the plot titles where transparency was leaking */
+:fullscreen .card,
+::backdrop .card,
+.bslib-full-screen-overlay .card {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+}
