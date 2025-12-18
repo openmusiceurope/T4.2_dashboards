@@ -10,7 +10,7 @@ There are few ways to download the content of the repository. First one is to cl
 your computer. This can be done by running the following code in the terminal.
 
 ```
-git clone https://github.com/allaht2/openmuse_project.git
+git clone https://github.com/openmusiceurope/OpenMusE_WP4_UTU.git
 ```
 
 Another option is to download the content of the repository as a ZIP. This can be done by the green 
