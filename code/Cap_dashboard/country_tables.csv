@@ -1,0 +1,21 @@
+Country,Category,Av. Expenses,Num visits (M),Yearly tot expenditure (M),Value added contribution,Employment contribution
+Germany,Merchandise,26.94,70,1885.86,1054.2,13370.75
+Germany,Transport,53.51,70,3745.7,1393.4,20189.34
+Germany,Hospitality,89.44,70,6260.81,2710.93,86336.57
+Germany,Tickets,53.97,70,3778.03,2315.93,33095.51
+Spain,Merchandise,20.53,28.3,581,321.88,7895.86
+Spain,Transport,31.08,28.3,879.5,357.08,6490.73
+Spain,Hospitality,81.97,28.3,2319.69,1125.05,34864.88
+Spain,Tickets,38.06,28.3,1077.03,590.21,12191.94
+France,Merchandise,25.95,31.2,809.74,409.73,5862.51
+France,Transport,41.75,31.2,1302.68,554.94,7985.43
+France,Hospitality,66.3,31.2,2068.46,781.88,20126.13
+France,Tickets,44.32,31.2,1382.71,819.95,11822.17
+Italy,Merchandise,18.64,29,540.48,263.75,5529.11
+Italy,Transport,29.75,29,862.72,353.72,5452.39
+Italy,Hospitality,51.95,29,1506.49,723.12,18981.83
+Italy,Tickets,31.62,29,917.09,369.59,6034.48
+Poland,Merchandise,15,12.2,183.04,107.63,4285.08
+Poland,Transport,23.62,12.2,288.2,103.75,7873.51
+Poland,Hospitality,45.21,12.2,551.52,258.66,17996.11
+Poland,Tickets,21.28,12.2,259.6,128.76,8091.76

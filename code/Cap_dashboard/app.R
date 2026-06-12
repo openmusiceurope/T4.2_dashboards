@@ -16,6 +16,8 @@ library(shinybusy)
 library(ggrepel)
 library(ragg)
 library(shinyjs)
+library(shinyBS)
+library(data.table)
 # library(thematic)
 # library(ragg)
 
@@ -85,52 +87,45 @@ culture_survey <- bind_rows(culture_survey %>%
                               mutate(S0 = haven::as_factor(S0)), all_countries_culture_survey) %>%
   haven::as_factor()
 
-culture_nr <- culture_survey %>%
-  haven::as_factor() %>%
-  select(-c(M31_6t, S8_9t, M22_9t, M42_11, M42_11t, M44_6, M44_6t, M70_21t)) %>%
-  mutate(M79 = if_any(starts_with("M79"), ~!is.na(.)),
-         M74 = if_any(starts_with("M74"), ~!is.na(.)),
-         M73 = if_any(starts_with("M73"), ~!is.na(.)),
-         M71 = if_any(starts_with("M71"), ~!is.na(.)),
-         M70 = if_any(starts_with("M70"), ~!is.na(.)),
-         M69 = if_any(starts_with("M69"), ~!is.na(.)),
-         M63 = if_any(starts_with("M63_"), ~!is.na(.)),
-         M62 = if_any(starts_with("M62"), ~!is.na(.)),
-         M61 = if_any(starts_with("M61"), ~!is.na(.)),
-         M57 = if_any(starts_with("M57"), ~!is.na(.)),
-         M56 = if_any(starts_with("M56"), ~!is.na(.)),
-         M55 = if_any(starts_with("M55"), ~!is.na(.)),
-         M54 = if_any(starts_with("M54"), ~!is.na(.)),
-         M51 = if_any(starts_with("M51"), ~!is.na(.)),
-         M50 = if_any(starts_with("M50"), ~!is.na(.)),
-         M49 = if_any(starts_with("M49"), ~!is.na(.)),
-         M47 = if_any(starts_with("M47"), ~!is.na(.)),
-         M46 = if_any(starts_with("M46"), ~!is.na(.)),
-         M45 = if_any(starts_with("M45"), ~!is.na(.)),
-         M44 = if_any(starts_with("M44"), ~!is.na(.)),
-         M43 = if_any(starts_with("M43"), ~!is.na(.)),
-         M42 = if_any(starts_with("M42"), ~!is.na(.)),
-         M39 = if_any(starts_with("M39"), ~!is.na(.)),
-         M38 = if_any(starts_with("M38"), ~!is.na(.)),
-         M37 = if_any(starts_with("M37"), ~!is.na(.)),
-         M36 = if_any(starts_with("M36"), ~!is.na(.)),
-         M35 = if_any(starts_with("M35"), ~!is.na(.)),
-         M34 = if_any(starts_with("M34_"), ~!is.na(.)),
-         M33 = if_any(starts_with("M33"), ~!is.na(.)),
-         M31 = if_any(starts_with("M31"), ~!is.na(.)),
-         M29 = if_any(starts_with("M29"), ~!is.na(.)),
-         M26 = if_any(starts_with("M26"), ~!is.na(.)),
-         M25 = if_any(starts_with("M25"), ~!is.na(.)),
-         M24 = if_any(starts_with("M24"), ~!is.na(.)),
-         M22 = if_any(starts_with("M22"), ~!is.na(.)),
-         M18 = if_any(starts_with("M18"), ~!is.na(.)),
-         M14 = if_any(starts_with("M14"), ~!is.na(.)),
-         S8 = if_any(starts_with("S8"), ~!is.na(.)),
-         S7 = if_any(starts_with("S7"), ~!is.na(.)),
-         S6 = if_any(starts_with("S6"), ~!is.na(.))) %>%
-  mutate(across(c(M79, M74, M71, M70, M69, M63, M62, M61, M57, M56, M55, M54, M51, M50, M49, M47, M46, M45, M44, M43,
-                  M42, M39, M38, M37, M36, M35, M34, M33, M31, M29, M26, M25, M24, M22, M18, M14, S8, S7, S6), ~ifelse(. == TRUE, 1, NA)))
+culture_nr <- as.data.table(haven::as_factor(culture_survey))
 
+drop_cols <- c("M31_6t", "S8_9t", "M22_9t", "M42_11", "M42_11t", "M44_6", "M44_6t", "M70_21t")
+culture_nr[, (drop_cols) := NULL]
+
+prefix_map <- c(
+  M79 = "M79", M74 = "M74", M73 = "M73", M71 = "M71", M70 = "M70",
+  M69 = "M69", M63 = "M63_", M62 = "M62", M61 = "M61", M57 = "M57",
+  M56 = "M56", M55 = "M55", M54 = "M54", M51 = "M51", M50 = "M50",
+  M49 = "M49", M47 = "M47", M46 = "M46", M45 = "M45", M44 = "M44",
+  M43 = "M43", M42 = "M42", M39 = "M39", M38 = "M38", M37 = "M37",
+  M36 = "M36", M35 = "M35", M34 = "M34_", M33 = "M33", M31 = "M31",
+  M29 = "M29", M26 = "M26", M25 = "M25", M24 = "M24", M22 = "M22",
+  M18 = "M18", M14 = "M14", S8  = "S8",  S7  = "S7",  S6  = "S6"
+)
+
+col_names <- names(culture_nr)
+
+for (new_col in names(prefix_map)) {
+  prefix   <- prefix_map[[new_col]]
+  src_cols <- col_names[startsWith(col_names, prefix)]
+  
+  if (length(src_cols) == 0) next
+  if (length(src_cols) == 1) {
+    culture_nr[, (new_col) := fifelse(!is.na(get(src_cols)), 1L, NA_integer_)]
+  } else {
+    culture_nr[, (new_col) := fifelse(
+      Reduce(`|`, lapply(.SD, Negate(is.na))),
+      1L, NA_integer_
+    ), .SDcols = src_cols]
+  }
+}
+
+# Evaluation tables
+evaluation_table_data <- read.csv("country_tables.csv") %>%
+  rename("Av. Expenses" = "Av..Expenses", "Num visits (M)" = "Num.visits..M.", 
+         "Yearly tot expenditure (M)" = "Yearly.tot.expenditure..M.",
+         "Value added contribution" = "Value.added.contribution", 
+         "Employment contribution" = "Employment.contribution")
 
 # The color used by the barplots
 # We define the base colors first
@@ -159,13 +154,17 @@ ui <- fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
     tags$link(rel = "stylesheet", type = "text/css", href = "styles_mobile_tables.css"),
     
-    # === ADD THIS CSS BLOCK ===
     tags$style(HTML("
       .shiny-busy-full-page {
         background-color: rgba(255, 255, 255, 0.5) !important; 
       }
-    "))
-    # === END OF CSS BLOCK ===
+    ")),
+    
+    tags$script(HTML("
+    $(document).ready(function() {
+      $('[data-toggle=\"popover\"]').popover();
+    });
+  "))
     
   ),
   
@@ -333,7 +332,6 @@ ui <- fluidPage(
         
         downloadButton("downloadDataCap", "Download data"),
         
-        # === NEW BUTTON ADDED HERE ===
         div(
           actionButton(
             inputId = "expand_plots",
@@ -411,21 +409,39 @@ ui <- fluidPage(
                      inputId  = "spend_category",
                      label    = NULL,
                      choices  = c(
-                       "Ticket"                   = "M18_1t",
-                       "Local transport"          = "M19_1t",
-                       "Long-distance transport"  = "M21_1t",
-                       "Accommodation"            = "M21_2t",
-                       "Food/drink at venue"      = "M19_2t",
-                       "Food/drink other"         = "M19_3t",
-                       "Merchandise - recordings" = "M19_4t",
-                       "Merchandise - apparel"    = "M19_5t",
-                       "Merchandise - other"      = "M19_6t"
+                       "Ticket"                   = "M18_1t_eur_mvr",
+                       "Local transport"          = "M19_1t_eur_mvr",
+                       "Long-distance transport"  = "M21_1t_eur_mvr",
+                       "Accommodation"            = "M21_2t_eur_mvr",
+                       "Food/drink at venue"      = "M19_2t_eur_mvr",
+                       "Food/drink other"         = "M19_3t_eur_mvr",
+                       "Merchandise - recordings" = "M19_4t_eur_mvr",
+                       "Merchandise - apparel"    = "M19_5t_eur_mvr",
+                       "Merchandise - other"      = "M19_6t_eur_mvr"
                      ),
                      multiple = TRUE,
-                     selected = "M18_1t"
+                     selected = "M18_1t_eur_mvr"
                    ),
                    tableOutput("Spending_on_table"),
                    plotOutput("Spending_on", width = "100%"),
+                   
+                   h2(
+                     "Total value of live music",
+                     tags$span(
+                       icon("circle-info"),
+                       id = "info-icon",
+                       style = "color:#007bff; cursor:pointer; margin-left:6px;",
+                       `data-toggle` = "popover",
+                       `data-trigger` = "click",
+                       `data-placement` = "right",
+                       `data-title` = "Methodology",
+                       `data-content` = "The methodology used to calculate the values differs slightly between the countries.",
+                       `data-container` = "body"
+                     )
+                   ),
+                   
+                   uiOutput("country_tables"),
+                   
                    
                    h2("Q20: Was this event held in your home city or town?"),
                    plotOutput("Where_event", width = "100%", height = "600px"),
@@ -736,7 +752,7 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   selected_gender <- reactive({
-    if (input$gender == "Total") {
+    if ("Total" %in% input$gender) {
       c("Male", "Female", "Another gender identity", "Don't want to say")
     } else {
       input$gender
@@ -747,13 +763,18 @@ server <- function(input, output) {
     input$update_data
     isolate({
       req(selected_gender())
-      culture_nr %>%
-        filter(S3 %in% selected_gender()) %>%
-        group_by(S0) %>%
-        summarise(across(c(M79, M74, M73, M71, M70, M69, M63, M62, M61, M57, M56, M55, M54, M51, M50, M49, M47, M46, M45, M44, M43,
-                           M42, M39, M38, M37, M36, M35, M34, M33, M31, M29, M26, M25, M24, M22, M18, M14, S8, S7, S6), ~sum(!is.na(.)))) %>%
-        select(c(S0, M79, M74, M73, M71, M70, M69, M63, M62, M61, M57, M56, M55, M54, M51, M50, M49, M47,
-                 M46, M45, M44, M43, M42, M39, M38, M37, M36, M35, M34, M33, M31, M29, M26, M25, M24, M22, M18, M14, S8, S7, S6))
+      
+      m_cols <- c("M79", "M74", "M73", "M71", "M70", "M69", "M63", "M62", "M61", "M57",
+                  "M56", "M55", "M54", "M51", "M50", "M49", "M47", "M46", "M45", "M44",
+                  "M43", "M42", "M39", "M38", "M37", "M36", "M35", "M34", "M33", "M31",
+                  "M29", "M26", "M25", "M24", "M22", "M18", "M14", "S8", "S7", "S6")
+      
+      culture_nr[
+        S3 %in% selected_gender(),                          
+        lapply(.SD, function(x) sum(!is.na(x))),            
+        by = S0,                                            
+        .SDcols = m_cols
+      ][, c("S0", m_cols), with = FALSE]                  
     })
   })
   
@@ -761,8 +782,21 @@ server <- function(input, output) {
     input$update_data
     isolate({
       req(input$country, selected_gender())
-      culture_survey %>%
-        filter(S0 %in% input$country, S3 %in% selected_gender())
+      
+      as.data.table(culture_survey)[S0 %in% input$country & S3 %in% selected_gender()]
+    })
+  })
+  
+  evaluation_table_filt <- reactive({
+    input$update_data
+    isolate({
+      req(input$country)
+      if ("All Countries" %in% input$country) {
+        evaluation_table_data 
+      } else {
+        evaluation_table_data %>%
+          filter(Country %in% input$country)
+      }
     })
   })
   
@@ -1018,9 +1052,9 @@ server <- function(input, output) {
   
   spending_data <- reactive({
     culture_survey_filt() %>%
-      filter(!if_all(c(M18_1t, starts_with("M19"), starts_with("M21")), is.na)) %>%
+      filter(!if_all(c(M18_1t_eur_mvr, ends_with("eur_mvr")), is.na)) %>%
       rowwise() %>%
-      mutate(sums = sum(c_across(c(M18_1t, starts_with("M19"), starts_with("M21"))), na.rm = TRUE)) %>%
+      mutate(sums = sum(c_across(c(M18_1t_eur_mvr, ends_with("eur_mvr"))), na.rm = TRUE)) %>%
       select(sums, S0) %>%
       na.omit()
   })
@@ -2718,6 +2752,33 @@ server <- function(input, output) {
       labs(x = "Spending", y = "Count") + facet_wrap(~S02, ncol = 3)
   })
   
+  output$country_tables <- renderUI({
+    countries <- unique(evaluation_table_filt()$Country)
+    
+    lapply(countries, function(ctry) {
+      tagList(
+        h3(ctry),
+        tableOutput(paste0("table_", ctry))
+      )
+    })
+  })
+  
+  # create one renderTable per country dynamically
+  observe({
+    countries <- unique(evaluation_table_filt()$Country)
+    
+    lapply(countries, function(ctry) {
+      local({
+        country <- ctry
+        
+        output[[paste0("table_", country)]] <- renderTable({
+          evaluation_table_filt()[evaluation_table_filt()$Country == country, ] %>%
+            select(-Country)
+        })
+      })
+    })
+  })
+  
   output$Spending_month_table <- renderTable({
     spending_month_data() %>%
       rename(Country = S0) %>%
@@ -4282,7 +4343,7 @@ server <- function(input, output) {
     plot_grid(p, p_text, ncol = 2, rel_widths = c(3, 2))
   })
   
-  
+
   
   output$Yearly_instrument <- renderPlot({
     yearly_instrument_plot_data <- yearly_instrument_data() %>%
@@ -4305,7 +4366,7 @@ server <- function(input, output) {
       labs(x = "Spending", y = "Count") + facet_wrap(~S02, ncol = 3)
   })
   
-  
+
   
   output$Yearly_instrument_total <- renderPlot({
     yearly_instrument_total_plot_data <- yearly_instrument_total_data() %>%
